@@ -3,17 +3,8 @@
 #include "raylib.h"
 #include <stdio.h>
 #include "entity.h"
+#include "config.h"
 
-#define TAG_PLATFORM 1
-#define TAG_PLAYER   2
-#define TAG_ENEMY    4
-
-// Basic constants for tuning feel
-static const int screenWidth = 960;
-static const int screenHeight = 540;
-static const float playerSpeed = 260.0f;
-static const float gravity = 900.0f;
-static const float jumpVelocity = -420.0f;
 static const Entity ground = { -1, true, TAG_PLATFORM, "Ground", {0,0}, {0,460,960,80} };
 
 static float GetHorizontalInput(void)
@@ -63,7 +54,7 @@ static bool GetJumpInput(void)
 
 int main(void)
 {
-    InitWindow(screenWidth, screenHeight, "FZJAM25 - 2D Platformer");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "FZJAM25 - 2D Platformer");
     SetTargetFPS(60);
 
     Entity playerEntity = { 0, true, TAG_PLAYER, "Player", {0,0}, {100, ground.bounds.y - 48,32,48} };
@@ -76,17 +67,17 @@ int main(void)
 
         // Input
         float move = GetHorizontalInput();
-        playerEntity.velocity.x = move * playerSpeed;
+        playerEntity.velocity.x = move * PLAYER_SPEED;
 
         // Jump
         if (GetJumpInput() && playerEntity.onGround)
         {
-            playerEntity.velocity.y = jumpVelocity;
+            playerEntity.velocity.y = JUMP_VELOCITY;
             playerEntity.onGround = false;
         }
 
         // Gravity
-        playerEntity.velocity.y += gravity * dt;
+        playerEntity.velocity.y += GRAVITY * dt;
 
         // Integrate
         playerEntity.bounds.x += playerEntity.velocity.x * dt;
@@ -102,10 +93,10 @@ int main(void)
         }
 
         // Camera follow
-        Vector2 cameraTarget = { playerEntity.bounds.x + playerEntity.bounds.width * 0.5f, screenHeight * 0.5f };
+        Vector2 cameraTarget = { playerEntity.bounds.x + playerEntity.bounds.width * 0.5f, SCREEN_HEIGHT * 0.5f };
         Camera2D cam = { 0 };
         cam.target = cameraTarget;
-        cam.offset = (Vector2){ screenWidth * 0.5f, screenHeight * 0.5f };
+        cam.offset = (Vector2){ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f };
         cam.rotation = 0.0f;
         cam.zoom = 1.0f;
 
