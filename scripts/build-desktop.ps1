@@ -110,11 +110,14 @@ Write-Host "Using raylib.lib from: $libDir" -ForegroundColor Cyan
 
 $clArgs = @(
     '/nologo'
+    '/Zi'          # Generate debug info
+    '/Od'          # Disable optimizations
     '/I'
     $includeDir
     (Join-Path $root 'src\main.c')
     "/Fe:$(Join-Path $buildDir 'fzjam25.exe')"
     '/link'
+    '/DEBUG'       # Link with debug info
     "/LIBPATH:$libDir"
     'raylib.lib'
     'msvcrt.lib'

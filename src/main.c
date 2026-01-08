@@ -1,5 +1,12 @@
+#define _ALLOW_KEYWORD_MACROS
+
 #include "raylib.h"
 #include <stdio.h>
+#include "entity.h"
+
+#define TAG_PLATFORM 1
+#define TAG_PLAYER   2
+#define TAG_ENEMY    4
 
 // Basic constants for tuning feel
 static const int screenWidth = 960;
@@ -7,7 +14,7 @@ static const int screenHeight = 540;
 static const float playerSpeed = 260.0f;
 static const float gravity = 900.0f;
 static const float jumpVelocity = -420.0f;
-static const Rectangle groundRect = { 0, 460, 960, 80 };
+static const Entity ground = { -1, true, TAG_PLATFORM, "Ground", {0,0}, {0,460,960,80} };
 
 static float GetHorizontalInput(void)
 {
@@ -59,11 +66,9 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "FZJAM25 - 2D Platformer");
     SetTargetFPS(60);
 
-    Vector2 playerPos = { 100, groundRect.y - 48 }; // start on ground
-    Vector2 velocity = { 0 }; // player velocity
-    Rectangle playerRect = { playerPos.x, playerPos.y, 32, 48 };
+    Entity playerEntity = { 0, true, TAG_PLAYER, "Player", {0,0}, {100, ground.bounds.y - 48,32,48} };
 
-    bool onGround = true;
+    playerEntity.onGround = true;
 
     while (!WindowShouldClose())
     {
@@ -71,37 +76,33 @@ int main(void)
 
         // Input
         float move = GetHorizontalInput();
-        velocity.x = move * playerSpeed;
+        playerEntity.velocity.x = move * playerSpeed;
 
         // Jump
-        if (GetJumpInput() && onGround)
+        if (GetJumpInput() && playerEntity.onGround)
         {
-            velocity.y = jumpVelocity;
-            onGround = false;
+            playerEntity.velocity.y = jumpVelocity;
+            playerEntity.onGround = false;
         }
 
         // Gravity
-        velocity.y += gravity * dt;
+        playerEntity.velocity.y += gravity * dt;
 
         // Integrate
-        playerPos.x += velocity.x * dt;
-        playerPos.y += velocity.y * dt;
-
+        playerEntity.bounds.x += playerEntity.velocity.x * dt;
+        playerEntity.bounds.y += playerEntity.velocity.y * dt;
         // Simple ground collision
-        playerRect.x = playerPos.x;
-        playerRect.y = playerPos.y;
-
-        onGround = false;
-        if (CheckCollisionRecs(playerRect, groundRect))
+        playerEntity.onGround = false;
+        if (CheckCollisionRecs(playerEntity.bounds, ground.bounds))
         {
             // Snap to ground
-            playerPos.y = groundRect.y - playerRect.height;
-            velocity.y = 0;
-            onGround = true;
+            playerEntity.bounds.y = ground.bounds.y - playerEntity.bounds.height;
+            playerEntity.velocity.y = 0;
+            playerEntity.onGround = true;
         }
 
         // Camera follow
-        Vector2 cameraTarget = { playerPos.x + playerRect.width * 0.5f, screenHeight * 0.5f };
+        Vector2 cameraTarget = { playerEntity.bounds.x + playerEntity.bounds.width * 0.5f, screenHeight * 0.5f };
         Camera2D cam = { 0 };
         cam.target = cameraTarget;
         cam.offset = (Vector2){ screenWidth * 0.5f, screenHeight * 0.5f };
@@ -113,8 +114,8 @@ int main(void)
         ClearBackground((Color){ 28, 27, 34, 255 });
 
         BeginMode2D(cam);
-        DrawRectangleRec(groundRect, (Color){ 70, 65, 90, 255 });
-        DrawRectangleV((Vector2){ playerPos.x, playerPos.y }, (Vector2){ playerRect.width, playerRect.height }, (Color){ 220, 220, 255, 255 });
+        DrawRectangleRec(ground.bounds, (Color){ 70, 65, 90, 255 });
+        DrawRectangleV((Vector2){ playerEntity.bounds.x, playerEntity.bounds.y }, (Vector2){ playerEntity.bounds.width, playerEntity.bounds.height }, (Color){ 220, 220, 255, 255 });
         EndMode2D();
 
         // Debug gamepad info
