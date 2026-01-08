@@ -1,0 +1,47 @@
+# Build outputs
+bin/
+web/
+build/
+build_*/
+*.exe
+*.dll
+*.lib
+*.a
+*.o
+*.obj
+*.pdb
+*.ilk
+*.idb
+*.exp
+
+# Emscripten outputs
+*.html
+*.js
+*.wasm
+*.data
+cache/
+emscripten_cache/
+third_party/emsdk/
+third_party/raylib/build*/
+third_party/raylib/.git/
+third_party/tools/
+third_party/butler/
+
+# Raylib generated assets
+assets/
+
+# Package managers / download leftovers
+*.zip
+*.tar
+*.tar.gz
+*.7z
+*.tgz
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp
+*.log
+.vscode/
+.idea/
