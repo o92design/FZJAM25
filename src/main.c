@@ -57,9 +57,10 @@ int main(void)
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "FZJAM25 - 2D Platformer");
     SetTargetFPS(60);
 
-    Entity playerEntity = { 0, true, TAG_PLAYER, "Player", {0,0}, {100, ground.bounds.y - 48,32,48} };
 
-    playerEntity.onGround = true;
+    Entity* playerEntity = Entity_Create("Player", TAG_PLAYER | TAG_PHYSICS | TAG_SOLID, (Vector2){100, 100}, (Rectangle){0,0,40,60});
+
+    playerEntity->onGround = true;
 
     while (!WindowShouldClose())
     {
@@ -67,33 +68,33 @@ int main(void)
 
         // Input
         float move = GetHorizontalInput();
-        playerEntity.velocity.x = move * PLAYER_SPEED;
+        playerEntity->velocity.x = move * PLAYER_SPEED;
 
         // Jump
-        if (GetJumpInput() && playerEntity.onGround)
+        if (GetJumpInput() && playerEntity->onGround)
         {
-            playerEntity.velocity.y = JUMP_VELOCITY;
-            playerEntity.onGround = false;
+            playerEntity->velocity.y = JUMP_VELOCITY;
+            playerEntity->onGround = false;
         }
 
         // Gravity
-        playerEntity.velocity.y += GRAVITY * dt;
+        playerEntity->velocity.y += GRAVITY * dt;
 
         // Integrate
-        playerEntity.bounds.x += playerEntity.velocity.x * dt;
-        playerEntity.bounds.y += playerEntity.velocity.y * dt;
+        playerEntity->bounds.x += playerEntity->velocity.x * dt;
+        playerEntity->bounds.y += playerEntity->velocity.y * dt;
         // Simple ground collision
-        playerEntity.onGround = false;
-        if (CheckCollisionRecs(playerEntity.bounds, ground.bounds))
+        playerEntity->onGround = false;
+        if (CheckCollisionRecs(playerEntity->bounds, ground.bounds))
         {
             // Snap to ground
-            playerEntity.bounds.y = ground.bounds.y - playerEntity.bounds.height;
-            playerEntity.velocity.y = 0;
-            playerEntity.onGround = true;
+            playerEntity->bounds.y = ground.bounds.y - playerEntity->bounds.height;
+            playerEntity->velocity.y = 0;
+            playerEntity->onGround = true;
         }
 
         // Camera follow
-        Vector2 cameraTarget = { playerEntity.bounds.x + playerEntity.bounds.width * 0.5f, SCREEN_HEIGHT * 0.5f };
+        Vector2 cameraTarget = { playerEntity->bounds.x + playerEntity->bounds.width * 0.5f, SCREEN_HEIGHT * 0.5f };
         Camera2D cam = { 0 };
         cam.target = cameraTarget;
         cam.offset = (Vector2){ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f };
@@ -106,7 +107,7 @@ int main(void)
 
         BeginMode2D(cam);
         DrawRectangleRec(ground.bounds, (Color){ 70, 65, 90, 255 });
-        DrawRectangleV((Vector2){ playerEntity.bounds.x, playerEntity.bounds.y }, (Vector2){ playerEntity.bounds.width, playerEntity.bounds.height }, (Color){ 220, 220, 255, 255 });
+        DrawRectangleV((Vector2){ playerEntity->bounds.x, playerEntity->bounds.y }, (Vector2){ playerEntity->bounds.width, playerEntity->bounds.height }, (Color){ 220, 220, 255, 255 });
         EndMode2D();
 
         // Debug gamepad info
@@ -132,6 +133,8 @@ int main(void)
 
         EndDrawing();
     }
+
+    Entity_Destroy(playerEntity->id);
 
     CloseWindow();
     return 0;

@@ -55,20 +55,28 @@ if (-Not (Test-Path $libraylib)) {
 }
 
 New-Item -ItemType Directory -Force -Path $buildDir | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path $buildDir 'obj') | Out-Null
 
 Write-Host "Compiling game with emcc..." -ForegroundColor Cyan
-$srcFile = Join-Path $root 'src/main.c'
+$srcDir = Join-Path $root 'src'
+$srcFiles = Get-ChildItem -Path $srcDir -Filter *.c | ForEach-Object { $_.FullName }
 $outFile = Join-Path $buildDir 'index.html'
 $includeDir = Join-Path $raylibDir 'src'
 $libDir = Join-Path $raylibDir 'build_web/raylib'
 
-& emcc $srcFile -o $outFile -O0 -g3 -I $includeDir -L $libDir -lraylib `
-    -s USE_GLFW=3 `
-    -s ASYNCIFY `
-    -s FORCE_FILESYSTEM=1 `
-    -s TOTAL_MEMORY=128MB `
-    -s ALLOW_MEMORY_GROWTH=1 `
-    -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' `
-    -s WASM=1
+# Compile each source to object
+$objDir = Join-Path $buildDir 'obj'
+Get-ChildItem -Path $srcDir -Filter *.c | ForEach-Object {
+    $src = $_.FullName
+    $obj = Join-Path $objDir ($_.BaseName + '.o')
+    & emcc -c $src -o $obj -O0 -g3 -I $includeDir
+}
+
+# Link objects
+$objFilesList = Get-ChildItem -Path $objDir -Filter *.o | ForEach-Object { $_.FullName }
+$tokens = @('emcc') + $objFilesList + @('-o', $outFile, '-O0', '-g3', '-L', $libDir, '-lraylib', '-s', 'USE_GLFW=3', '-s', 'ASYNCIFY', '-s', 'FORCE_FILESYSTEM=1', '-s', 'TOTAL_MEMORY=128MB', '-s', 'ALLOW_MEMORY_GROWTH=1', '-s', 'WASM=1')
+$linkCmd = $tokens -join ' '
+Write-Host "Link command: $linkCmd" -ForegroundColor Cyan
+Invoke-Expression $linkCmd
 
 Write-Host 'Web build complete -> web/index.html (development mode, no version bump).' -ForegroundColor Green

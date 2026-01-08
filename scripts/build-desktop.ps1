@@ -60,12 +60,14 @@ function Build-Raylib-Desktop {
     $rlBuildDir = Join-Path $raylibDir 'build_desktop'
     New-Item -ItemType Directory -Force -Path $rlBuildDir | Out-Null
     Push-Location $rlBuildDir
-    cmake .. -DPLATFORM=Desktop -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF
-    cmake --build . --config Release
+    cmake .. -DPLATFORM=Desktop -DCMAKE_BUILD_TYPE=Debug -DBUILD_EXAMPLES=OFF
+    cmake --build . --config Debug
     Pop-Location
     
     # Check multiple possible locations for raylib.lib
     $possiblePaths = @(
+        (Join-Path $raylibDir 'build_desktop/raylib/Debug/raylib.lib'),
+        (Join-Path $raylibDir 'build_desktop/Debug/raylib.lib'),
         (Join-Path $raylibDir 'build_desktop/raylib/Release/raylib.lib'),
         (Join-Path $raylibDir 'build_desktop/raylib/raylib.lib'),
         (Join-Path $raylibDir 'build_desktop/Release/raylib.lib')
@@ -82,14 +84,14 @@ function Build-Raylib-Desktop {
 
 Find-MSVC
 
-$libraylib = Join-Path $raylibDir 'build_desktop/raylib/Release/raylib.lib'
+$libraylib = Join-Path $raylibDir 'build_desktop/raylib/Debug/raylib.lib'
 if (-Not (Test-Path $libraylib)) {
     # Try alternate location
     $libraylib = Join-Path $raylibDir 'build_desktop/raylib/raylib.lib'
     if (-Not (Test-Path $libraylib)) {
         Build-Raylib-Desktop
         # Re-check for library after build
-        $libraylib = Join-Path $raylibDir 'build_desktop/raylib/Release/raylib.lib'
+        $libraylib = Join-Path $raylibDir 'build_desktop/raylib/Debug/raylib.lib'
         if (-Not (Test-Path $libraylib)) {
             $libraylib = Join-Path $raylibDir 'build_desktop/raylib/raylib.lib'
         }
@@ -108,21 +110,22 @@ New-Item -ItemType Directory -Force -Path $buildDir | Out-Null
 Write-Host 'Compiling game with MSVC...' -ForegroundColor Cyan
 Write-Host "Using raylib.lib from: $libDir" -ForegroundColor Cyan
 
+$srcDir = Join-Path $root 'src'
+$srcFiles = Get-ChildItem -Path $srcDir -Filter *.c | ForEach-Object { $_.FullName }
+
 $clArgs = @(
     '/nologo'
     '/Zi'          # Generate debug info
     '/Od'          # Disable optimizations
+    '/MDd'         # Use dynamic debug runtime to match raylib Debug build
     '/I'
     $includeDir
-    (Join-Path $root 'src\main.c')
+    $srcFiles
     "/Fe:$(Join-Path $buildDir 'fzjam25.exe')"
     '/link'
     '/DEBUG'       # Link with debug info
     "/LIBPATH:$libDir"
     'raylib.lib'
-    'msvcrt.lib'
-    'ucrt.lib'
-    'vcruntime.lib'
     'winmm.lib'
     'gdi32.lib'
     'opengl32.lib'
