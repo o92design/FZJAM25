@@ -10,7 +10,7 @@
 
 ## **Phase 1: Core Entity & Systems**
 
-- [ ] **entity.h / entity.c** - Entity management
+- [x] **entity.h / entity.c** - Entity management
   - Keep existing `Entity` struct, maybe add:
     - `bool active;` - skip inactive entities
     - `int tags;` - bitflags (PLAYER, ENEMY, PLATFORM, etc.)

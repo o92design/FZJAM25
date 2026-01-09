@@ -4,61 +4,14 @@
 #include <stdio.h>
 #include "entity.h"
 #include "config.h"
-
-static const Entity ground = { -1, true, TAG_PLATFORM, "Ground", {0,0}, {0,460,960,80} };
-
-static float GetHorizontalInput(void)
-{
-    float axis = 0.0f;
-
-    if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) axis += 1.0f;
-    if (IsKeyDown(KEY_LEFT)  || IsKeyDown(KEY_A)) axis -= 1.0f;
-
-    // Check all possible gamepads (web sometimes uses non-zero indices)
-    for (int i = 0; i < 4; i++)
-    {
-        if (IsGamepadAvailable(i))
-        {
-            float gpAxis = GetGamepadAxisMovement(i, GAMEPAD_AXIS_LEFT_X);
-            if (gpAxis < -0.2f || gpAxis > 0.2f) 
-            {
-                axis = gpAxis;
-                break;
-            }
-        }
-    }
-
-    return axis;
-}
-
-static bool GetJumpInput(void)
-{
-    if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
-        return true;
-    
-    // Check all gamepads for button press (A button on Xbox = button 0)
-    for (int i = 0; i < 4; i++)
-    {
-        if (IsGamepadAvailable(i))
-        {
-            if (IsGamepadButtonPressed(i, GAMEPAD_BUTTON_RIGHT_FACE_DOWN) ||  // A button
-                IsGamepadButtonPressed(i, 0))  // Also check button 0 directly
-            {
-                return true;
-            }
-        }
-    }
-    
-    return false;
-}
+#include "input.h"
 
 int main(void)
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "FZJAM25 - 2D Platformer");
     SetTargetFPS(60);
-
-
-    Entity* playerEntity = Entity_Create("Player", TAG_PLAYER | TAG_PHYSICS | TAG_SOLID, (Vector2){100, 100}, (Rectangle){0,0,40,60});
+    Entity* ground = Entity_Create("Ground", TAG_PLATFORM, (Vector2){0,0}, (Rectangle){0,460,960,80});
+    Entity* playerEntity = Entity_Create("Player", TAG_PLAYER | TAG_PHYSICS | TAG_SOLID, (Vector2){100, 100}, (Rectangle){0, ground->position.y - 60,40,60});
 
     playerEntity->onGround = true;
 
@@ -68,12 +21,12 @@ int main(void)
 
         // Input
         float move = GetHorizontalInput();
-        playerEntity->velocity.x = move * PLAYER_SPEED;
+        ChangeVelocityX(playerEntity, move * PLAYER_SPEED);
 
         // Jump
         if (GetJumpInput() && playerEntity->onGround)
         {
-            playerEntity->velocity.y = JUMP_VELOCITY;
+            ChangeVelocityY(playerEntity, JUMP_VELOCITY);
             playerEntity->onGround = false;
         }
 
@@ -85,10 +38,10 @@ int main(void)
         playerEntity->bounds.y += playerEntity->velocity.y * dt;
         // Simple ground collision
         playerEntity->onGround = false;
-        if (CheckCollisionRecs(playerEntity->bounds, ground.bounds))
+        if (CheckCollisionRecs(playerEntity->bounds, ground->bounds))
         {
             // Snap to ground
-            playerEntity->bounds.y = ground.bounds.y - playerEntity->bounds.height;
+            playerEntity->bounds.y = ground->bounds.y - playerEntity->bounds.height;
             playerEntity->velocity.y = 0;
             playerEntity->onGround = true;
         }
@@ -106,7 +59,7 @@ int main(void)
         ClearBackground((Color){ 28, 27, 34, 255 });
 
         BeginMode2D(cam);
-        DrawRectangleRec(ground.bounds, (Color){ 70, 65, 90, 255 });
+        DrawRectangleRec(ground->bounds, (Color){ 70, 65, 90, 255 });
         DrawRectangleV((Vector2){ playerEntity->bounds.x, playerEntity->bounds.y }, (Vector2){ playerEntity->bounds.width, playerEntity->bounds.height }, (Color){ 220, 220, 255, 255 });
         EndMode2D();
 
@@ -134,8 +87,8 @@ int main(void)
         EndDrawing();
     }
 
-    Entity_Destroy(playerEntity->id);
-
+    Entity_Clear();
     CloseWindow();
+
     return 0;
 }
