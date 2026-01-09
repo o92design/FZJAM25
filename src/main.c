@@ -20,21 +20,7 @@ int main(void)
     while (!WindowShouldClose())
     {
         float dt = GetFrameTime();
-
-        // Input
-        float move = GetHorizontalInput();
-        ChangeVelocityX(playerEntity, move * PLAYER_SPEED);
-
-        // Jump
-        if (GetJumpInput() && playerEntity->onGround)
-        {
-            ChangeVelocityY(playerEntity, JUMP_VELOCITY);
-            playerEntity->onGround = false;
-        }
-
-        // Gravity
-        //playerEntity->velocity.y += GRAVITY * dt;
-        ChangeVelocityY(playerEntity, playerEntity->velocity.y + GRAVITY * dt);
+        HandleInput(dt);
 
         // Integrate
         Move(playerEntity, playerEntity->velocity.x, playerEntity->velocity.y, dt);

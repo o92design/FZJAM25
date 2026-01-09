@@ -1,5 +1,32 @@
 #include "input.h"
 
+
+void HandleInput(float dt) {
+    // Input
+    float move = GetHorizontalInput();
+    bool jumpInput = GetJumpInput();
+
+    for(int entityId = 0; entityId < entityCount; ++entityId) {
+        Entity* playerEntity = &entities[entityId];
+        if(!(playerEntity->tags & TAG_PLAYER)) {
+            continue;
+        }
+
+        ChangeVelocityX(playerEntity, move * PLAYER_SPEED);
+
+        // Jump
+        if (GetJumpInput() && playerEntity->onGround)
+        {
+            ChangeVelocityY(playerEntity, JUMP_VELOCITY);
+            playerEntity->onGround = false;
+        }
+
+        // Gravity
+        ChangeVelocityY(playerEntity, playerEntity->velocity.y + GRAVITY * dt);
+    }
+        
+}
+
 bool GetJumpInput(void)
 {
     if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))

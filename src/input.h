@@ -2,6 +2,9 @@
 #define INPUT_H
 
 #include "entity.h"
+#include "config.h"
+
+void HandleInput(float dt);
 
 bool GetJumpInput(void);
 float GetHorizontalInput(void);
