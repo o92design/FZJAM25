@@ -42,22 +42,29 @@ if (-Not (Test-Path $indexHtml)) {
 # Check if butler is authenticated
 Write-Host 'Checking butler authentication...' -ForegroundColor Cyan
 
-# Set API key from environment variable if provided
-if ($env:BUTLER_API_KEY) {
-    Write-Host 'Using API key from BUTLER_API_KEY environment variable.' -ForegroundColor Green
-} else {
-    # Check authentication status
-    $loginCheck = & $butler login --validate 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host ''
-        Write-Host '================================================' -ForegroundColor Yellow
-        Write-Host 'Butler not authenticated. Please run:' -ForegroundColor Yellow
-        Write-Host "  $butler login" -ForegroundColor Cyan
-        Write-Host ''
-        Write-Host 'Get your API key from: https://itch.io/user/settings/api-keys' -ForegroundColor Yellow
-        Write-Host '================================================' -ForegroundColor Yellow
-        throw 'Butler authentication required. Run the command above first.'
+# Load API key: prefer env var, else try local API_KEYS file (not committed)
+if (-not $env:BUTLER_API_KEY) {
+    $apiFile = Join-Path $root 'API_KEYS'
+    if (Test-Path $apiFile) {
+        $kv = Get-Content $apiFile | Where-Object { $_ -match '^BUTLER_API_KEY=' }
+        if ($kv) {
+            $env:BUTLER_API_KEY = ($kv -split '=', 2)[1].Trim()
+        }
     }
+}
+
+if ($env:BUTLER_API_KEY) {
+    Write-Host 'Using API key from BUTLER_API_KEY (env or API_KEYS file).' -ForegroundColor Green
+} else {
+    Write-Host ''
+    Write-Host '================================================' -ForegroundColor Yellow
+    Write-Host 'No BUTLER_API_KEY set. Add to env or create API_KEYS with:' -ForegroundColor Yellow
+    Write-Host '  BUTLER_API_KEY=YOUR_KEY_HERE' -ForegroundColor Cyan
+    Write-Host ''
+    Write-Host 'Or login once:' -ForegroundColor Yellow
+    Write-Host "  $butler login" -ForegroundColor Cyan
+    Write-Host '================================================' -ForegroundColor Yellow
+    throw 'Butler authentication required.'
 }
 
 Write-Host "Uploading web build to $itchUser/$itchGame..." -ForegroundColor Cyan
