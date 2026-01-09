@@ -11,10 +11,10 @@ void Move(Entity* entity, float velocityX, float velocityY, float dt)
 
 void MoveX(Entity* entity, float velocityX, float dt)
 {
-    Move(entity, velocityX, 0.0f, dt);
+    Move(entity, velocityX, entity->velocity.y, dt);
 }
 
 void MoveY(Entity* entity, float velocityY, float dt)
 {
-    Move(entity, 0.0f, velocityY, dt);
+    Move(entity, entity->velocity.x, velocityY, dt);
 }
