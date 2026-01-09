@@ -6,13 +6,14 @@
 #include "config.h"
 #include "input.h"
 #include "physics.h"
+#include "render.h"
 
 int main(void)
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "FZJAM25 - 2D Platformer");
     SetTargetFPS(60);
-    Entity* ground = Entity_Create("Ground", TAG_PLATFORM, (Vector2){0,0}, (Rectangle){0,460,960,80});
-    Entity* playerEntity = Entity_Create("Player", TAG_PLAYER | TAG_PHYSICS | TAG_SOLID, (Vector2){100, 100}, (Rectangle){0, ground->position.y - 60,40,60});
+    Entity* ground = Entity_Create("Ground", TAG_PLATFORM, (Vector2){0,0}, (Rectangle){0,460,960,80}, (Color){70,65,90,255});
+    Entity* playerEntity = Entity_Create("Player", TAG_PLAYER | TAG_PHYSICS | TAG_SOLID, (Vector2){100, 100}, (Rectangle){0, ground->position.y - 60,40,60}, (Color){220,220,255,255});
 
     playerEntity->onGround = true;
 
@@ -56,37 +57,7 @@ int main(void)
         cam.rotation = 0.0f;
         cam.zoom = 1.0f;
 
-        // Render
-        BeginDrawing();
-        ClearBackground((Color){ 28, 27, 34, 255 });
-
-        BeginMode2D(cam);
-        DrawRectangleRec(ground->bounds, (Color){ 70, 65, 90, 255 });
-        DrawRectangleV((Vector2){ playerEntity->bounds.x, playerEntity->bounds.y }, (Vector2){ playerEntity->bounds.width, playerEntity->bounds.height }, (Color){ 220, 220, 255, 255 });
-        EndMode2D();
-
-        // Debug gamepad info
-        char statusText[256];
-        bool hasGamepad = false;
-        for (int i = 0; i < 4; i++)
-        {
-            if (IsGamepadAvailable(i))
-            {
-                hasGamepad = true;
-                snprintf(statusText, sizeof(statusText), "Gamepad %d: %s | Move: A/D or Left Stick | Jump: Space/W or A button", 
-                         i, GetGamepadName(i));
-                break;
-            }
-        }
-        
-        if (!hasGamepad)
-        {
-            snprintf(statusText, sizeof(statusText), "No gamepad detected | Move: A/D | Jump: Space/W (Press any gamepad button to connect)");
-        }
-        
-        DrawText(statusText, 10, 10, 18, RAYWHITE);
-
-        EndDrawing();
+        Render(cam);
     }
 
     Entity_Clear();

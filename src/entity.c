@@ -9,7 +9,7 @@ Entity entities[MAX_ENTITIES] = { 0 };
 int entityCount = 0;
 static int nextEntityId = 0; // Stable, monotonically increasing IDs
 
-Entity* Entity_Create(const char* name, int tags, Vector2 pos, Rectangle bounds)
+Entity* Entity_Create(const char* name, int tags, Vector2 pos, Rectangle bounds, Color boundColor)
 {
     if (entityCount >= MAX_ENTITIES) return NULL;
 
@@ -23,6 +23,7 @@ Entity* Entity_Create(const char* name, int tags, Vector2 pos, Rectangle bounds)
     ent->bounds = bounds;
     ent->velocity = (Vector2){0, 0};
     ent->onGround = false;
+    ent->boundColor = boundColor;
 
     return ent;
 }

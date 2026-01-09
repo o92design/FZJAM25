@@ -12,6 +12,7 @@ typedef struct {
     Rectangle bounds;   // Position + size for collision
     Vector2 velocity;
     bool onGround;      // Useful for platformers
+    Color boundColor;
 } Entity;
 
 // Entity array management
