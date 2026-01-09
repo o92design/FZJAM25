@@ -1,5 +1,5 @@
 #include "render.h"
-
+#include <stdio.h>
 
 void Render(Camera2D camera)
 {

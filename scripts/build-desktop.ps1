@@ -5,6 +5,7 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $raylibDir = Join-Path $root 'third_party/raylib'
 $buildDir = Join-Path $root 'bin'
+$objDir = Join-Path $buildDir 'obj'
 
 function Find-MSVC {
     # Check if cl is already available
@@ -106,6 +107,14 @@ if (-Not (Test-Path $libraylib)) {
 }
 
 New-Item -ItemType Directory -Force -Path $buildDir | Out-Null
+New-Item -ItemType Directory -Force -Path $objDir | Out-Null
+
+# Clean previous build artifacts to avoid stale conflicts
+Write-Host 'Cleaning previous desktop build artifacts...' -ForegroundColor Yellow
+Remove-Item -Force -ErrorAction SilentlyContinue (Join-Path $objDir '*.obj')
+Remove-Item -Force -ErrorAction SilentlyContinue (Join-Path $buildDir 'fzjam25.exe')
+Remove-Item -Force -ErrorAction SilentlyContinue (Join-Path $buildDir 'fzjam25.pdb')
+Remove-Item -Force -ErrorAction SilentlyContinue (Join-Path $buildDir 'fzjam25.ilk')
 
 Write-Host 'Compiling game with MSVC...' -ForegroundColor Cyan
 Write-Host "Using raylib.lib from: $libDir" -ForegroundColor Cyan
@@ -118,6 +127,7 @@ $clArgs = @(
     '/Zi'          # Generate debug info
     '/Od'          # Disable optimizations
     '/MDd'         # Use dynamic debug runtime to match raylib Debug build
+    ("/Fo$objDir\\")  # Put object files in bin/obj
     '/I'
     $includeDir
     $srcFiles

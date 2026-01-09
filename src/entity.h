@@ -19,7 +19,7 @@ typedef struct {
 extern Entity entities[256];
 extern int entityCount;
 
-Entity* Entity_Create(const char* name, int tags, Vector2 pos, Rectangle bounds);
+Entity* Entity_Create(const char* name, int tags, Vector2 pos, Rectangle bounds, Color boundColor);
 void Entity_Destroy(int id);
 Entity* Entity_GetById(int id);
 void Entity_Clear(void);
