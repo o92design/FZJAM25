@@ -21,19 +21,7 @@ int main(void)
     {
         float dt = GetFrameTime();
         HandleInput(dt);
-
-        // Integrate
-        Move(playerEntity, playerEntity->velocity.x, playerEntity->velocity.y, dt);
-        
-        // Simple ground collision
-        playerEntity->onGround = false;
-        if (CheckCollisionRecs(playerEntity->bounds, ground->bounds))
-        {
-            // Snap to ground
-            playerEntity->bounds.y = ground->bounds.y - playerEntity->bounds.height;
-            playerEntity->velocity.y = 0;
-            playerEntity->onGround = true;
-        }
+        HandlePhysics(dt);
 
         // Camera follow
         Vector2 cameraTarget = { playerEntity->bounds.x + playerEntity->bounds.width * 0.5f, SCREEN_HEIGHT * 0.5f };

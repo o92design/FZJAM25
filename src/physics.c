@@ -1,5 +1,40 @@
 #include "physics.h"
 
+void HandlePhysics(float dt)
+{
+    for (int entityId = 0; entityId < entityCount; ++entityId)
+    {
+        Entity* entity = &entities[entityId];
+        if (!(entity->tags & TAG_PHYSICS))
+        {
+            continue;
+        }
+
+        // Integrate
+        Move(entity, entity->velocity.x, entity->velocity.y, dt);
+        
+        // Simple ground collision
+        entity->onGround = false;
+        Entity* ground = NULL;
+        for (int otherId = 0; otherId < entityCount; ++otherId)
+        {
+            Entity* other = &entities[otherId];
+            if (other->tags & TAG_PLATFORM)
+            {
+                ground = other;
+                if (CheckCollisionRecs(entity->bounds, ground->bounds))
+                {
+                    // Snap to ground
+                    entity->bounds.y = ground->bounds.y - entity->bounds.height;
+                    entity->velocity.y = 0;
+                    entity->onGround = true;
+                }
+            }
+        }
+        
+    }
+}
+
 void Move(Entity* entity, float velocityX, float velocityY, float dt)
 {
     if (entity)
