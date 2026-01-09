@@ -56,7 +56,7 @@ void ChangeVelocity(Entity* entity, float velocityX, float velocityY)
 
 void ChangeVelocityY(Entity* entity, float velocityY)
 {
-    ChangeVelocity(entity, 0.0f, velocityY);
+    ChangeVelocity(entity, entity->velocity.x, velocityY);
 }
 
 void ChangeVelocityX(Entity* entity, float velocityX)

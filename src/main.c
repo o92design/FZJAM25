@@ -5,6 +5,7 @@
 #include "entity.h"
 #include "config.h"
 #include "input.h"
+#include "physics.h"
 
 int main(void)
 {
@@ -31,11 +32,12 @@ int main(void)
         }
 
         // Gravity
-        playerEntity->velocity.y += GRAVITY * dt;
+        //playerEntity->velocity.y += GRAVITY * dt;
+        ChangeVelocityY(playerEntity, playerEntity->velocity.y + GRAVITY * dt);
 
         // Integrate
-        playerEntity->bounds.x += playerEntity->velocity.x * dt;
-        playerEntity->bounds.y += playerEntity->velocity.y * dt;
+        Move(playerEntity, playerEntity->velocity.x, playerEntity->velocity.y, dt);
+        
         // Simple ground collision
         playerEntity->onGround = false;
         if (CheckCollisionRecs(playerEntity->bounds, ground->bounds))
