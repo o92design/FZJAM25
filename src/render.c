@@ -1,8 +1,10 @@
 #include "render.h"
+#include "game.h"
 #include <stdio.h>
 
-void Render(Camera2D camera)
+void Render(Game* game, Camera2D camera)
 {
+    (void)game; // currently unused
     BeginDrawing();
     ClearBackground((Color){ 28, 27, 34, 255 });
 

@@ -1,7 +1,9 @@
 #include "input.h"
+#include "game.h"
 
 
-void HandleInput(float dt) {
+void HandleInput(Game* game, float dt) {
+    (void)game; // currently unused, reserved for state-driven input
     // Input
     float move = GetHorizontalInput();
     bool jumpInput = GetJumpInput();
@@ -21,8 +23,6 @@ void HandleInput(float dt) {
             playerEntity->onGround = false;
         }
 
-        // Gravity
-        ChangeVelocityY(playerEntity, playerEntity->velocity.y + GRAVITY * dt);
     }
         
 }

@@ -2,6 +2,7 @@
 #define ENTITY_H
 
 #include "raylib.h"
+#include "config.h"
 
 typedef struct {
     int id;
@@ -16,7 +17,7 @@ typedef struct {
 } Entity;
 
 // Entity array management
-extern Entity entities[256];
+extern Entity entities[MAX_ENTITIES];
 extern int entityCount;
 
 Entity* Entity_Create(const char* name, int tags, Vector2 pos, Rectangle bounds, Color boundColor);

@@ -1,8 +1,10 @@
 #include "physics.h"
+#include "game.h"
 #include <stddef.h>
 
-void HandlePhysics(float dt)
+void HandlePhysics(Game* game, float dt)
 {
+    (void)game; // currently unused
     for (int entityId = 0; entityId < entityCount; ++entityId)
     {
         Entity* entity = &entities[entityId];
@@ -10,6 +12,9 @@ void HandlePhysics(float dt)
         {
             continue;
         }
+
+        // Apply gravity
+        entity->velocity.y += GRAVITY * dt;
 
         // Integrate
         Move(entity, entity->velocity.x, entity->velocity.y, dt);

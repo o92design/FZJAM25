@@ -3,8 +3,9 @@
 
 #include "entity.h"
 #include "config.h"
+#include "game.h"
 
-void HandleInput(float dt);
+void HandleInput(Game* game, float dt);
 
 bool GetJumpInput(void);
 float GetHorizontalInput(void);
